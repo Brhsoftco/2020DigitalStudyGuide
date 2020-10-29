@@ -42,22 +42,31 @@
 
 **Encryption**
 
-Encryption is the process of scrambling data so that only the desired party can understand that information. In more technical terms it is the process of converting plain text to cipher text.
+Encryption is the process of scrambling data so that only the desired party can understand that information. In more technical terms it is the process of converting plain text to cipher text, with only the other person having the means to decipher that information: the 'key'.
 
 
   ```
-  "Hello"  --->  [encryption]  --->  "SNifgNi+uk0="
+  "Hello"  --->  [encryption]  --->  "SNifgNi+uk0=" (base64-encoded raw bytes)
   plaintext                          ciphertext
   ```
 
-
+Wait, base64? You didn't expect modern encryption to be readable text right? Encryption muddles the bytes using a key, and since characters and words take up space (bytes; one byte per character), it'd make sense for the bytes to longer resemble text anymore, correct? This is where base64 comes into play. It serves to turn raw, binary data (bytes) into readable text and vice versa. Most base64 strings (bits of text) tend to end with '=' and appear as random alphanumeric characters; sometimes with other symbols.
 
 **Compression**
 
-Compression is the process used to reduce the storage space a file or program uses, this allowing more files to fit into the same amount of space. This process is especially useful when transferring files over the internet due to larger files taking a longer time to transfer.
+Compression is the process used to reduce the storage space a file or program uses, this allows more files to fit into the same amount of space. This process is especially useful when transferring files over the internet due to larger files taking a longer amount of time to transfer. Compression works by taking common pieces of information and applying 'transforms' to reduce the size down. For example, unneeded information is deleted and replaced with 'pointers' to where the riht data can be found; in this manner, you avoid duplicating data, and thus, save space.
+
+Example uncompressed: "This is a text document!"
+Example compressed: "\[pointers]hisaexdocumn!"
+
+The first part of the file keeps information on where to find things, and is called a "header"; anything below the header is known as the "payload".
 
 **Hashing**
-Hashing is the process in which an input is turned into a fixed sized value. Hashing, unlike encryption, has an output that cannot be reversed to form the key. This means that if a hacker gained access to the hashed database they could only gain access to the keys, which cant be reversed to gain the passwords. However, someone with the password can hash theirs and check it against the stored hash to gain access.
+Hashing is the process in which an input is turned into a fixed sized value. Hashing, unlike encryption, has an output that cannot be reversed to form the plaintext. This means that if an attacker gains access to the hashed database, they could only gain access to the "hashes", which cannot be reversed to gain the original plaintext. How is this useful? A hashing algorithm produces raw, unreadble bytes, but may be transformed to a 'hex representation' to look like text. The caviat, is that the algorithm will always output the same hash if the same input is given. Hence, entering the correct password creates a matching hash to the one stored, passing the login security check.
+
+Hashes can be further enhanced in security by 'salting' the hash. This is where the algorithm will generate additional random data that derives from the input; the salt thus generates a degree of randomness making the security of the hash harder to crack.
+
+Hashes are able to cracked with a significant amount of computing power; hence, MD5 being the weakest and SHA-512 being the strongest and most efficient for production environments and security-criticial services. Hashes are broken via 'brute-forcing', which runs through every possible combination until a matching hash is detected. When this happens, the computer logs the plaintext used to generate the hash, and reports it to the attacker. Yet, brute-forcing is incredibly infeasible nowadays.
 
 - - -
 
@@ -69,16 +78,16 @@ Symmetric key encryption, also known as a symmetric algorithm, is a type of encr
 
 * **Symmetric Key Ciphers**	
 	
-	<ol>- DES: A 64 bit block cipher that uses a 56-bit key.</ol>
+	<ol>- DES: A 64 bit block cipher (4x4 block matrix) that uses a 56-bit key.</ol>
 	<ol>- Triple DES (3DES): Uses three separate 56 bit encryption keys. The message is encrypted using one key, encrypted again using a second key and further 	encrypted by using either a first or third key.</ol>
-	<ol>- AES: A variant of [the] Rijndael [block cipher], with a fixed block size of 128 bits, and a key size of 128, 192, or 256 bits. - ("Advanced Encryption 	Standard", 2020)</ol>
+	<ol>- AES: A variant of [the] Rijndael [block cipher], with a fixed block size of 128 bits, and a key size of 128bits (10 rounds), 192bits (12 rounds) or 256 bits (14 rounds). The security of AES owes to its key derivation and round key structure; after each round, the block matrix is shuffled and the next round key is generated, which in turn encrypts the next round and so on. ("Advanced Encryption Standard", 2020)</ol>
 	<ol>- Twofish: A symmetric block cipher which operates on 128 bit blocks and employs 16 rounds with key lengths up to 256 bits.</ol>
 	<ol>- Blowfish: A symmetric block cipher which operates on 64 bit blocks and employs 16 rounds with key lengths up to 448 bits and uses large key-dependant 	S-boxes [S-box: "<i>a basic component of symmetric key algorithms which performs substitution"</i> - ("S-box", 2020)].</ol>
 	</li> <br>
 
 **Asymmetric Key Encryption**
 
-Asymmetric key encryption, also known as an asymmetric algorithm, is a type of encryption that uses two separate keys, with one being used to encrypt and the other to decrypt data. The key pair being referenced as a public key and private key. The public key is used to send the message and the private key being the one to decrypt said message. Some advantages to using asymmetric key encryption include its encryption extended functionality and its scalability for larger projects with its main disadvantage being the speed of the algorithm. <br>
+Asymmetric key encryption, also known as an asymmetric algorithm, is a type of encryption that uses two separate keys, with one being used to encrypt and the other to decrypt data. The key pair being referenced as a public key and private key. The public key is used to send the message and the private key being the one to decrypt said message. Some advantages to using asymmetric key encryption include its flexible design model and its scalability for larger projects, with its main disadvantage being the speed of the algorithm and the complex nature of many implementations (e.g. SSL).<br>
 
 * **Asymmetric Key Ciphers**
 	<ol>- RSA: <i>"In RSA, the public key is generated by multiplying two large prime numbers p and q together, and the private key is generated through a different process involving p and q. A user can then distribute his public key pq, and anyone wishing to send the user a message would encrypt their message using the public key... When the user receives the encrypted message, they decrypt it using the private key and can read the original text."</i> - (Katz et al., 2020)</ol>
@@ -263,9 +272,9 @@ A protocol is is a system of rules that allows two or more entities of a communi
 
 <ol>- HTTPS: HyperText Transfer Protocol Secure is an extension of HTTP used for secure communication over networks. HTTPS is encrypted using TLS (Transport Layer Security). You can tell when your browser is communicating over HTTPS by the green lock icon in the address bar of most browsers. Most browsers also display a warning to the user when visiting a site that contains a mixture of encrypted and unencrypted content.</ol>
 
-<ol>- TCP: Transmission Control Protocol is a standard that defines how to establish and maintain a network conversation through which application programs can exchange data.</ol>
+<ol>- TCP: Transmission Control Protocol is a standard that defines how to establish and maintain a network conversation through which application programs can exchange data. It is the main transmission medium of the internet protocol, and aims to ensure minimal packet loss. It achieves this via confirmation and timeout periods from the client to the server and back again. If a packet is determined as lost, the server simply resends it and confirms again if the coient received the data; failure to receieve the packet too many times causes a socket connection termination by the server.</ol>
 
-<ol>- IP: Internet Protocol  is the principal communications protocol in the Internet protocol suite for relaying datagrams across network boundaries. Its routing function enables internetworking, and essentially establishes the Internet.
+<ol>- IP: Internet Protocol is the principal communications protocol in the Internet protocol suite for relaying datagrams across network boundaries. Its routing function enables internetworking, and essentially establishes the Internet.
 
 IP has the task of delivering packets from the source host to the destination host solely based on the IP addresses in the packet headers. For this purpose, IP defines packet structures that encapsulate the data to be delivered. It also defines addressing methods that are used to label the datagram with source and destination information.</ol>
 
@@ -314,7 +323,7 @@ Let’s say you’re trying to find videos about Batman on Youtube. You open up 
 
 An **API** is a set of rules that allow programs to talk to each other. The developer creates the API on the server and allows the client to talk to it.
 
-**REST** determines how the API looks like. It is a set of rules that developers follow when they create their API. One of these rules states that you should be able to get a piece of data (called a resource) when you link to a specific URL.
+**REST** determines what the API looks like. It is a set of rules that developers follow when they create their API. One of these rules states that you should be able to get a piece of data (called a resource) when you link to a specific URL.
 
 Each URL is called a request while the data sent back to you is called a response.
 
@@ -327,7 +336,7 @@ It’s important to know that a request is made up of four things:
 * The endpoint
 * The method
 * The headers
-* The data (or body)
+* The data (or body/payload)
 
 The **endpoint** (or route) is the url you request for. It follows this structure:
 
@@ -348,6 +357,8 @@ The endpoint to get a list of my repos on Github is this:
 The final part of an endpoint is **query parameters**. Technically, query parameters are not part of the REST architecture, but you’ll see lots of APIs use them. So, to help you completely understand how to read and use API’s we’re also going to talk about them. Query parameters give you the option to modify your request with key-value pairs. They always begin with a question mark (`?`). Each parameter pair is then separated with an ampersand (&), like this:
 
 `?query1=value1&query2=value2`
+
+Parameters may be also be transmitted via custom headers, e.g. 'X-Client-Identifier: Windows10-Gecko71.0" or "Authorization: bearer <authentication token>" to relay your authentication status to the endpoint.
 
 <br>
 
@@ -388,7 +399,7 @@ An array can contain objects:
 
 In the example above, the object `"employees"` is an array. It contains three objects.
 
-Each object is a record of a person (with a first name and a last name).
+Each object is a record of a person (with a first name and a last name). The first part of the text (before the colon) is called a JSON 'property', and the second part the 'value'.
 
 Here is another example of JSON:
 
@@ -460,9 +471,9 @@ Here is another example of JSON:
 * JSON doesn't use end tags
 * JSON is shorter
 * JSON is quicker to read and write
-* JSON can use arrays
+* JSON can use standardised arrays, whereas XML requires the use of a schema.
 
-### Why JSON is Better:
+### Why JSON is Better (via the web)
 #### Using XML
 
 * Fetch an XML document
@@ -499,6 +510,8 @@ Here is another example of JSON:
 	    <type>male</type>
 	  </sex>
 	</person>
+
+XML is often moreso used in heavily structure-reliant models, such as in desktop computing, video games or digital record keeping. It is (for example) natively supported in Unity3d, Mono and the .NET Framework development tools, whereas JSON is not as commonplace without 3rd-party libraries.
 
 <br><br>
 
